@@ -7,13 +7,28 @@ connection.onInitialize((params: lsp.InitializeParams) => {
 		capabilities: {
 			textDocumentSync: {
 				openClose: true,
+			},
+			diagnosticProvider: {
+				workspaceDiagnostics: false, // does matter for clearing on close in VS Code
+				interFileDependencies: true, // doesn't matter for clearing on close
 			}
 		}
 	}
 })
 
-connection.onDidCloseTextDocument((params: lsp.DidCloseTextDocumentParams) => {
-	console.info("Closed", params.textDocument.uri)
+connection.languages.diagnostics.on(async (_params, _token): Promise<lsp.FullDocumentDiagnosticReport | lsp.UnchangedDocumentDiagnosticReport> => {
+	return {
+		kind: "full",
+		items: [
+			{
+				message: "Hello world!",
+				range: {
+					start: { line: 0, character: 1 },
+					end: { line: 0, character: 5 },
+				},
+			},
+		],
+	}
 })
 
 connection.listen()
